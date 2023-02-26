@@ -1,2 +1,3 @@
-# parallel-port
-Using parallel port with C++ on Linux
+# C++ snippets
+C/C++ snippets by Cool Emerald
+http://cool-emerald.blogspot.com/
