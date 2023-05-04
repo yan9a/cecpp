@@ -4,14 +4,25 @@
 # echo -e "12345678">mes.txt
 # cat mes.txt
 
-# encode
-openssl enc -des-cbc -in mes.txt -out ciphertxt.enc -nosalt -iv 0000000000000000 -K 6162636465666768
+# generate key pair
+echo "Genpkey ..."
+openssl genpkey -algorithm RSA -out private_key.pem
+
+echo "Pubkey ..."
+openssl rsa -pubout -in private_key.pem -out public_key.pem
+
+# encrypt
+echo "Encrypt ..."
+openssl rsautl -encrypt -in mes.txt -out ciphertext.enc -inkey public_key.pem -pubin
 
 # display encoded value
-xxd ciphertxt.enc
+echo "Display ciphertext ..."
+xxd ciphertext.enc
 
-# decode
-openssl enc -des-cbc -d -in ciphertxt.enc -out plain.txt -nosalt -iv 0000000000000000 -K 6162636465666768
+# decrypt
+echo "Decrypt ..."
+openssl rsautl -decrypt -in ciphertext.enc -out plain.txt -inkey private_key.pem
 
 # check diff
+echo "Check ..."
 diff mes.txt plain.txt
