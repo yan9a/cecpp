@@ -6,6 +6,7 @@
 #include <cstring>
 #include <openssl/des.h>
 #include <iomanip>
+#include <algorithm>
 // ----------------------------------------------------------------------------
 // { function prototypes ------------------------------------------------------
 // hex string to byte string
@@ -18,15 +19,23 @@ std::string des_encrypt(const std::string& key, const std::string& message);
 std::string des_decrypt(const std::string& key, const std::string& encrypted_message);
 // ------------------------------------------------------- function prototypes}
 // ----------------------------------------------------------------------------
-std::string str_hex2byte(std::string hstr)
+std::string str_hex2byte(std::string str)
 {
-    return "";
+	std::string bstr;
+	str.erase(remove_if(str.begin(), str.end(), [](char ch) {
+		return !(
+			(ch >= '0' && ch <= '9') ||
+			(ch >= 'A' && ch <= 'Z') ||
+			(ch >= 'a' && ch <= 'z')); }), str.end());
+	int n = str.length();
+	for (int i = 0; i < n; i += 2) 
+		bstr += ((char)stoi(str.substr(i, 2), NULL, 16));
+	return bstr;
 }
 // ----------------------------------------------------------------------------
 std::string str_byte2hex(std::string bstr)
 {
     unsigned char u;
-     // Convert the encrypted message to a string
     std::stringstream ss;
     for (auto c: bstr) {
         u = (unsigned char)(c);
@@ -45,21 +54,24 @@ std::string des_encrypt(const std::string& key, const std::string& message) {
     memcpy(key_des, key.c_str(), std::min<size_t>(key.size(), 8));
     DES_set_key_checked(&key_des, &key_schedule);
 
-    // Encrypt the message using DES
-    size_t message_length = message.size();
-    size_t encrypted_message_length = ((message_length + 7) / 8) * 8;
-    unsigned char* encrypted_message_buffer = new unsigned char[encrypted_message_length];
-    memset(encrypted_message_buffer, 0, encrypted_message_length);
-    DES_ncbc_encrypt(reinterpret_cast<const unsigned char*>(message.c_str()),
-                     encrypted_message_buffer, message_length, &key_schedule, &iv, DES_ENCRYPT);
+    DES_cblock mes_des;
+    memset(mes_des, 0, 8);
+    memcpy(mes_des, message.c_str(), 8);
+    unsigned char encrypted_message_buffer[8];
+    memset(encrypted_message_buffer, 0, 8);
 
-    std::stringstream ss1;
-    for (size_t i = 0; i < encrypted_message_length; ++i) {
-        ss1 << static_cast<char>(encrypted_message_buffer[i]);
-    }
-    std::string cstr = ss1.str();
+    DES_cblock output;
+    // void DES_ecb_encrypt(const_DES_cblock *input, DES_cblock *output,
+    //                  DES_key_schedule *ks, int enc);
+    DES_ecb_encrypt(&mes_des, &output,&key_schedule, DES_ENCRYPT);
+    // DES_ncbc_encrypt((const unsigned char*)(message.c_str()),
+    //                  encrypted_message_buffer, message_length, &key_schedule, &iv, DES_ENCRYPT);
+    // DES_ncbc_encrypt((const unsigned char*)(m2),
+    //                  encrypted_message_buffer, 8, &key_schedule, &iv, DES_ENCRYPT);
+    memcpy(encrypted_message_buffer,output,8);
+
+    std::string cstr((char*)encrypted_message_buffer,8);
     std::string encrypted_message = str_byte2hex(cstr);
-    delete[] encrypted_message_buffer;
     return encrypted_message;
 }
 // ----------------------------------------------------------------------------
@@ -75,16 +87,7 @@ std::string des_decrypt(const std::string& key, const std::string& encrypted_mes
     DES_set_key_checked(&key_des, &key_schedule);
 
     // Convert the encrypted message from a hex string to bytes
-    std::string encrypted_message_bytes;
-    std::istringstream ss(encrypted_message);
-    while (true) {
-        int byte;
-        ss >> std::hex >> byte;
-        if (ss.eof()) {
-            break;
-        }
-        encrypted_message_bytes += static_cast<char>(byte);
-    }
+    std::string encrypted_message_bytes = str_hex2byte(encrypted_message);
 
     // Decrypt the message using DES
     size_t encrypted_message_length = encrypted_message_bytes.size();
