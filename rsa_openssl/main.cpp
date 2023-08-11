@@ -114,7 +114,7 @@ string bn2str(BIGNUM* bigN)
 {
     // Convert BIGNUM to binary representation
     size_t bnSize = BN_num_bytes(bigN);
-    unsigned char bnStr[bnSize];
+    unsigned char* bnStr = new unsigned char[bnSize];
     BN_bn2bin(bigN, bnStr);
     string bnString((char*)bnStr,bnSize);   
     return bnString;
