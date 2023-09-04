@@ -1,103 +1,69 @@
 #include <iostream>
 #include <functional>
 using namespace std;
-class MyClass {
-    void cbmethod0(int i);
-    void cbmethod1(int i);
+
+//---------------------------------------------------------
+class MyClass { 
+    std::function<void(int)> _f;   
 public:
-    // direct call back
-    typedef void(MyClass::*cbm_t)(int);
-    MyClass::cbm_t _cbtable[2];
-    //-------------------
-    // functional
-    // https://en.cppreference.com/w/cpp/utility/functional/placeholders
-    std::function<void(int)> _cbtable2[2];
-    //-------------------
-    // lambda
-    std::function<void(int)> _cbtable3[2];
-    //-------------------
-    MyClass();
-    void call();
+    void callCB(int i);
+    void setCB(std::function<void(int)> f);
+    void CBFunc(int i);
+    void Func(int i);
 };
 
-MyClass::MyClass(){
-    // direct
-    _cbtable[0] = &MyClass::cbmethod0;
-    _cbtable[1] = &MyClass::cbmethod1;
-
-    // functional
-    using std::placeholders::_1;
-    _cbtable2[0] = std::bind(&MyClass::cbmethod0, this, _1);
-    _cbtable2[1] = std::bind(&MyClass::cbmethod1, this, _1);
-
-     // lambda
-    _cbtable3[0] = [&](int a){this->cbmethod0(a);};
-    _cbtable3[1] = [&](int a){this->cbmethod1(a);};
-
-}
-void MyClass::cbmethod0(int i)
+void MyClass::setCB(std::function<void(int)> f)
 {
-    cout<< "cbmethod0, i = "<<i<<endl;   
+    _f = f;   
 }
-void MyClass::cbmethod1(int i)
+void MyClass::callCB(int i)
 {
-    cout<< "cbmethod1, i = "<<i<<endl; 
+    _f(i);
 }
-void MyClass::call()
+void MyClass::CBFunc(int i)
 {
-    // direct
-    (this->*_cbtable[0])(0);
-    (this->*_cbtable[1])(1);
-
-    // functional
-    this->_cbtable2[0](2);
-    this->_cbtable2[1](3);
-
-    // lambda
-    this->_cbtable3[0](4);
-    this->_cbtable3[1](5);
+    std::cout << "Call back "<< i << endl;
 }
 
-class MyClass2 {
-    void cbmethod0(int i);
-    void cbmethod1(int i);
+void MyClass::Func(int i)
+{
+    std::cout << "Func ";
+    this->callCB(i);
+}
+//---------------------------------------------------------
+class MyClass2 { 
+    std::function<void(int)> _f;   
 public:
-    // direct call back
-    typedef void(MyClass::*cbm_t)(int);
-    MyClass::cbm_t _cbtable[2];
-    //-------------------
-    // functional
-    // https://en.cppreference.com/w/cpp/utility/functional/placeholders
-    std::function<void(int)> _cbtable2[2];
-    //-------------------
-    // lambda
-    std::function<void(int)> _cbtable3[2];
-    //-------------------
-    MyClass2();
-    void call();
+    void callCB(int i);
+    void setCB(std::function<void(int)> f);
+    void CBFunc(int i);
 };
 
-MyClass2::MyClass2(){
-    // direct
-    _cbtable[0] = &MyClass::cbmethod0;
-    _cbtable[1] = &MyClass::cbmethod1;
-
-    // functional
-    using std::placeholders::_1;
-    _cbtable2[0] = std::bind(&MyClass::cbmethod0, this, _1);
-    _cbtable2[1] = std::bind(&MyClass::cbmethod1, this, _1);
-
-     // lambda
-    _cbtable3[0] = [&](int a){this->cbmethod0(a);};
-    _cbtable3[1] = [&](int a){this->cbmethod1(a);};
-
+void MyClass2::setCB(std::function<void(int)> f)
+{
+    _f = f;   
 }
-
+void MyClass2::callCB(int i)
+{
+    _f(i);
+}
+void MyClass2::CBFunc(int i)
+{
+    std::cout << "Call back2 "<< i << endl;
+}
+//---------------------------------------------------------
 int main(int, char**) {
-    std::cout << "Hello call back methods!\n";
+    std::cout << "Hello call back!\n";
     MyClass* p = new MyClass();
-    p->call();
-
     MyClass2* p2 = new MyClass2();
-    p2->call();
+
+
+    p->setCB([&](int a){p2->CBFunc(a);});
+    p2->setCB([&](int a){p->CBFunc(a);});
+
+    p->callCB(5);
+    p2->callCB(6);
+    p->Func(7);
+    return 0;
 }
+//---------------------------------------------------------
