@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message MyMes {
+  int32 id = 1;
+  float amount = 2;
+  string name = 3;
+}
+
