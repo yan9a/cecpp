@@ -23,7 +23,7 @@ int main()
         
         // wait for reply from server
         zmq::message_t reply{};
-        socket.recv(reply, zmq::recv_flags::none);
+        zmq::recv_result_t r = socket.recv(reply, zmq::recv_flags::none);
 
         std::cout << "Received " << reply.to_string(); 
         std::cout << " (" << request_num << ")";

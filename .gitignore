@@ -35,3 +35,4 @@ build/
 Testing/
 buildw/
 .vscode/
+build*/

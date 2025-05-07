@@ -24,7 +24,7 @@ int main()
         zmq::message_t request;
 
         // receive a request from client
-        socket.recv(request, zmq::recv_flags::none);
+        zmq::recv_result_t r = socket.recv(request, zmq::recv_flags::none);
         std::cout << "Received " << request.to_string() << std::endl;
 
         // simulate work

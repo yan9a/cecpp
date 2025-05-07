@@ -1,0 +1,67 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+      "major": 3,
+      "minor": 19,
+      "patch": 0
+    },
+    "configurePresets": [
+      {
+        "name": "windows-vcpkg",
+        "displayName": "Windows Build with vcpkg",
+        "description": "Build using vcpkg toolchain on Windows",
+        "generator": "Visual Studio 17 2022",
+        "binaryDir": "${sourceDir}/buildw",
+        "cacheVariables": {
+          "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+          "CMAKE_INSTALL_PREFIX": "${sourceDir}/target"
+        }
+      },
+      {
+        "name": "ubuntu-gcc",
+        "displayName": "Ubuntu Build with GCC",
+        "description": "Build using GCC on Ubuntu",
+        "generator": "Unix Makefiles",
+        "binaryDir": "${sourceDir}/buildu",
+        "cacheVariables": {
+          "CMAKE_C_COMPILER": "/usr/bin/gcc",
+          "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+          "CMAKE_INSTALL_PREFIX": "${sourceDir}/target"
+        }
+      },
+      {
+        "name": "ubuntu-clang",
+        "displayName": "Ubuntu Build with Clang",
+        "description": "Build using Clang on Ubuntu",
+        "generator": "Unix Makefiles",
+        "binaryDir": "${sourceDir}/buildu-clang",
+        "cacheVariables": {
+          "CMAKE_C_COMPILER": "/usr/bin/clang",
+          "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+          "CMAKE_INSTALL_PREFIX": "${sourceDir}/target"
+        }
+      }
+    ],
+    "buildPresets": [
+      {
+        "name": "windows-vcpkg-build",
+        "configurePreset": "windows-vcpkg",
+        "description": "Build project using vcpkg on Windows",
+        "jobs": 4
+      },
+      {
+        "name": "ubuntu-gcc-build",
+        "configurePreset": "ubuntu-gcc",
+        "description": "Build project using GCC on Ubuntu",
+        "jobs": 4
+      },
+      {
+        "name": "ubuntu-clang-build",
+        "configurePreset": "ubuntu-clang",
+        "description": "Build project using Clang on Ubuntu",
+        "jobs": 4
+      }
+    ],
+    "testPresets": []
+  }
+  
