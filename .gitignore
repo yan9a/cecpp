@@ -31,8 +31,18 @@
 *.out
 *.app
 
+out/
 build/
-Testing/
 buildw/
+buildm/
+cmake-build-debug/
+.vs/
 .vscode/
+.idea/
+x64/
+*.log
+*.vcxproj.user
+Testing/
+Debug/
+Release/
 build*/
